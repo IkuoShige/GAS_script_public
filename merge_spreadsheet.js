@@ -15,8 +15,12 @@ function transferFormData() {
       var formSheet = SpreadsheetApp.openById(formSheetIds[i]).getActiveSheet();
       var lastRow = formSheet.getLastRow();
   
+      // A列のデータから最後の行数を取得
+      var lastRowIndex = getLastRowWithData(formSheet);
+      console.log(lastRowIndex)
+
       // スプレッドシートにデータがない場合はスキップ
-      if (lastRow <= 1) {
+      if (lastRowIndex <= 1) {
         continue;
       }
       var formValues = formSheet.getRange(2, 1, lastRow - 1, 8).getValues(); // ヘッダーを除いたデータの範囲を指定
@@ -48,4 +52,20 @@ function transferFormData() {
       }
     }
   }
-  
+
+function getlastRowWithData(sheet) {
+    var columnA = sheet.getRange("A:A").getValues();
+    var lastRow = columnA.length;
+
+    // 最後の空白セル（値が入っていないセル）の位置を特定
+    for (var i = lastRow - 1; i >= 0; i--) {
+        if (columnA[i][0] !== "") {
+            // 値が入っているセルを見つけたらその行番号を返す
+            return i + 1;
+        }
+    }
+
+    // A列がすべて空白だった場合は0を返す
+    return 0;
+}
+
