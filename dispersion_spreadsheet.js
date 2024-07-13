@@ -64,10 +64,19 @@ function distributeFormData() {
       continue
     }
 
-    // 空白を削除してデータを詰める
-    var cleanedRow = row.filter(function(cell) {
-      return cell !== "";
-    });
+    // 必要なデータを抽出
+    var cleanedRow = [
+      row[0], // 'タイムスタンプ'
+      row[1], // 'メールアドレス'
+      row[2], // '競技'
+      ...row.slice(
+        destination_start_index[category],
+        destination_start_index[category] + destination_header_num[category]
+      ),
+      row[row.length-2],
+      row[row.length-1],
+    ];
+
     // console.log("new row: ", cleanedRow);
     var cleanedheaderRow = [
       headerRow[0], // 'タイムスタンプ'
@@ -96,7 +105,10 @@ function distributeFormData() {
 
     var timestamp = row[0].toString();
     if (!existingTimestamps.includes(timestamp)) {
-      destinationSheet.appendRow(cleanedRow);
+      var aColumnValues = destinationSheet.getRange("A:A").getValues();
+      var lastNonEmptyRow = aColumnValues.filter(String).length;
+      destinationSheet.insertRowAfter(lastNonEmptyRow);
+      destinationSheet.getRange(lastNonEmptyRow + 1, 1, 1, cleanedRow.length).setValues([cleanedRow]);
     }
   }
 
